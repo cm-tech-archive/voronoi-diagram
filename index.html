@@ -4,6 +4,16 @@
         <script></script>
 
         <title>Voronoi diagram</title>
+        <script>
+            (function() { //subdomain redirect wizard
+                var matchedSub = /(.*)\.cm\-ht\.ml/.exec(window.location.hostname);
+                if ((matchedSub === null || (matchedSub[1] === "www" && location.pathname.split("/").length > 1 && location.pathname.split("/")[1].length > 0)) && location.hostname !== "localhost") {
+                    var projectName = location.pathname.split("/")[1];
+                    var fixedLocation = location.protocol + "//" + "www." + projectName + ".cm-ht.ml" + "/" + location.pathname.split("/").filter(x => x.length > 0).slice(1).concat([""]).join("/") + (location.hash ? "#" + location.hash : "");
+                    window.location = fixedLocation;
+                }
+            })();
+        </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script type="text/javascript" src="rhill-voronoi-core.min.js"></script>
         <style>
