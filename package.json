@@ -1,0 +1,28 @@
+{
+  "name": "voronoi-diagram",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CM-Tech/voronoi-diagram.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CM-Tech/voronoi-diagram/issues"
+  },
+  "homepage": "https://github.com/CM-Tech/voronoi-diagram#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "sass": "^1.32.5",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "d3-delaunay": "^5.3.0"
+  }
+}
