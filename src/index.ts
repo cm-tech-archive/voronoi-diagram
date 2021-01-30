@@ -104,11 +104,15 @@ function random(neg?: any) {
 
 let s = 0;
 var pa = [];
-
-document.getElementById("text").innerHTML = "HI";
-setText("HI");
+var t="TYPE IN TOP LEFT"
+if(window.location.hash!==""){
+    t=decodeURIComponent(window.location.hash.substring(1))
+}
+document.getElementById("text").innerHTML = t;
+setText(t);
 
 function setText(t) {
+    window.location.hash=encodeURIComponent(t);
     size.x = window.innerWidth;
     size.y = window.innerHeight;
     c.width = size.x;
