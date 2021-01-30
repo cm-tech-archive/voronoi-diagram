@@ -104,15 +104,15 @@ function random(neg?: any) {
 
 let s = 0;
 var pa = [];
-var t="TYPE IN TOP LEFT"
-if(window.location.hash!==""){
-    t=decodeURIComponent(window.location.hash.substring(1))
+var t = "TYPE IN TOP LEFT"
+if (window.location.hash !== "") {
+    t = decodeURIComponent(window.location.hash.substring(1))
 }
 document.getElementById("text").innerHTML = t;
 setText(t);
 
 function setText(t) {
-    window.location.hash=encodeURIComponent(t);
+    window.location.hash = encodeURIComponent(t);
     size.x = window.innerWidth;
     size.y = window.innerHeight;
     c.width = size.x;
@@ -126,6 +126,37 @@ function setText(t) {
     ctx.fillStyle = "black";
     let fontt = "'Jost'";
     ctx.font = 100 + "px " + fontt;
+    let lines = t.split("\n");
+    let fontMeasures = [];
+    let fontSizes = [];
+    let runningY = 0;
+    let runningYS = [];
+    for (let i = 0; i < lines.length; i++) {
+        ctx.font = 100 + "px " + fontt;
+        var measure = ctx.measureText(lines[i]);
+        let bbox = {
+            x: measure.actualBoundingBoxLeft,
+            y: -measure.actualBoundingBoxAscent + runningY,
+            w: measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
+            h: measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent,
+        };
+        let fS = Math.floor(1000 / bbox.w * 100);
+        // console.log(fS);
+        ctx.font = fS + "px " + fontt;
+        measure = ctx.measureText(lines[i]);
+
+        runningY += measure.actualBoundingBoxAscent;
+        bbox = {
+            x: measure.actualBoundingBoxLeft,
+            y: -measure.actualBoundingBoxAscent + runningY,
+            w: measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
+            h: measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent,
+        };
+        runningYS.push(runningY + 0);
+        runningY += measure.actualBoundingBoxDescent;
+        fontSizes.push(fS);
+        fontMeasures.push(bbox);
+    }
     var measure = ctx.measureText(t);
     let bbox = {
         x: measure.actualBoundingBoxLeft,
@@ -133,10 +164,17 @@ function setText(t) {
         w: measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
         h: measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent,
     };
-    var heightOfFont = Math.floor(
+
+    let bbbox = { h: fontMeasures[fontMeasures.length - 1].y + fontMeasures[fontMeasures.length - 1].h - fontMeasures[0].y, w: 0 };
+    var sScale =
         Math.min(
-            (c.width - 200) / (bbox.w / 100),
-            (c.height - 200) / (bbox.h / 100)
+            (c.width - 200) / (1000),
+            (c.height - 200) / (bbbox.h)
+        )
+        ;
+    var heightOfFont = Math.floor(sScale *
+        Math.min(
+            ...fontSizes
         )
     );
 
@@ -144,24 +182,25 @@ function setText(t) {
         Math.floor(heightOfFont / 20) + 1,
         Math.floor(Math.min(size.x, size.y) / 20) + 1
     );
+    for (let i = 0; i < lines.length; i++) {
+        ctx.font = fontSizes[i] * sScale + "px " + fontt;
+        //   mtext = ctx.measureText(t).width;
+        measure = ctx.measureText(lines[i]);
+        bbox = {
+            x: measure.actualBoundingBoxLeft,
+            y: -measure.actualBoundingBoxAscent,
+            w: measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
+            h: measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent,
+        };
 
-    ctx.font = heightOfFont + "px " + fontt;
-    //   mtext = ctx.measureText(t).width;
-    measure = ctx.measureText(t);
-    bbox = {
-        x: measure.actualBoundingBoxLeft,
-        y: -measure.actualBoundingBoxAscent,
-        w: measure.actualBoundingBoxRight - measure.actualBoundingBoxLeft,
-        h: measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent,
-    };
-
-    ctx.fillText(
-        t,
-        (size.x + bbox.w) / 2 -
-        measure.actualBoundingBoxRight +
-        measure.actualBoundingBoxLeft,
-        size.y / 2 - bbox.y - bbox.h / 2
-    );
+        ctx.fillText(
+            lines[i],
+            (size.x + bbox.w) / 2 -
+            measure.actualBoundingBoxRight +
+            measure.actualBoundingBoxLeft,
+            size.y / 2 - fontMeasures[0].y * sScale - bbbox.h * sScale / 2 + (runningYS[i]) * sScale
+        );
+    }
 
     let ctext = ctx.getImageData(0, 0, size.x, size.y);
     let pixtext = ctext.data;
@@ -181,14 +220,14 @@ function setText(t) {
             p = pa[i];
             p.tick();
             // p.heart();
-            points.push([p.x,p.y]);
+            points.push([p.x, p.y]);
         }
         const delaunay = Delaunay.from(points);
-const voronoi = delaunay.voronoi([0, 0, c.width, c.height]);
-ctx.beginPath();
-ctx.strokeStyle="white";
-voronoi.render(ctx);
-ctx.stroke();
+        const voronoi = delaunay.voronoi([0, 0, c.width, c.height]);
+        ctx.beginPath();
+        ctx.strokeStyle = "white";
+        voronoi.render(ctx);
+        ctx.stroke();
     }, speed);
 }
 window.onresize = () => {
